@@ -9,12 +9,14 @@ class MetricsHandler {
     private static volatile MetricsHandler metricsHandler;
     private final Map<UUID, MetricsModel> metrics;
     private volatile long minProcessingTime;
-    private volatile long averageProcessingTime;
+    private volatile double averageProcessingTime;
     private volatile long maxProcessingTime;
     private volatile long minResponseSize;
-    private volatile long averageResponseSize;
+    private volatile double averageResponseSize;
     private volatile long maxResponseSize;
     private volatile long numberOfRequests;
+    private volatile long totalProcessingTime;
+    private volatile long totalResponseSize;
 
     private MetricsHandler() {
         metrics = new LinkedHashMap<>();
@@ -25,6 +27,8 @@ class MetricsHandler {
         averageResponseSize = 0;
         maxResponseSize = 0;
         numberOfRequests = 0;
+        totalProcessingTime = 0;
+        totalResponseSize = 0;
     }
 
     synchronized void addMetric(MetricsModel metric) {
@@ -37,12 +41,14 @@ class MetricsHandler {
         }
 
         numberOfRequests++;
-        averageProcessingTime = (averageProcessingTime * (numberOfRequests - 1) + metric.getProcessingTime()) / numberOfRequests;
-        averageResponseSize = (averageResponseSize * (numberOfRequests - 1) + metric.getResponseSize()) / numberOfRequests;
-        minProcessingTime = metric.getProcessingTime() > minProcessingTime ? minProcessingTime : metric.getProcessingTime();
-        maxProcessingTime = metric.getProcessingTime() < maxProcessingTime ? maxProcessingTime : metric.getProcessingTime();
-        minResponseSize = metric.getResponseSize() > minResponseSize ? minResponseSize : metric.getResponseSize();
-        maxResponseSize = metric.getResponseSize() < maxResponseSize ? maxResponseSize : metric.getResponseSize();
+        totalProcessingTime += metric.getProcessingTime();
+        averageProcessingTime = (double)totalProcessingTime / numberOfRequests;
+        totalResponseSize += metric.getResponseSize();
+        averageResponseSize = (double)totalResponseSize / numberOfRequests;
+        minProcessingTime = Math.min(metric.getProcessingTime(),minProcessingTime);
+        maxProcessingTime = Math.max(metric.getProcessingTime(), maxProcessingTime);
+        minResponseSize = Math.min(metric.getResponseSize(), minResponseSize);
+        maxResponseSize = Math.max(metric.getResponseSize(), maxResponseSize);
     }
 
     MetricsModel getMetricById(UUID id) {

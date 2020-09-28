@@ -8,9 +8,9 @@ import lombok.Setter;
 @Getter
 public class MetricsSummaryModel {
     private long minProcessingTime;
-    private long averageProcessingTime;
+    private double averageProcessingTime;
     private long maxProcessingTime;
     private long minResponseSize;
-    private long averageResponseSize;
+    private double averageResponseSize;
     private long maxResponseSize;
 }
