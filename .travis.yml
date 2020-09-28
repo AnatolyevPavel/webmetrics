@@ -12,4 +12,4 @@ deploy:
   script: "mvn -B -V deploy"
   skip_cleanup: true
   on:
-    tags: false
+    tags: true
