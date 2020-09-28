@@ -16,10 +16,10 @@ import pa.pavelan.webmetrics.handler.MetricsHelper;
 
 import java.io.IOException;
 
-public class TestMetricFilter {
+class TestMetricFilter {
 
     @Test
-    public void testDoFilter() throws ServletException, IOException {
+    void testDoFilter() throws ServletException, IOException {
 
         final String ID_HEADER_NAME = "PAVELAN-METRICS-ID-TEST";
 
