@@ -21,7 +21,7 @@ Here are the steps to add the library to a Maven Spring Boot project:
 	<version>1.0-SNAPSHOT</version>
 </dependency>
 ```
-1. Add filter configuration to a configuration file
+2. Add filter configuration to a configuration file
 ```
 @Component
 public class FilterRegistrationConfig {
@@ -34,4 +34,4 @@ public class FilterRegistrationConfig {
     }
 }
 ```
-1. Have fun
+3. Have fun
