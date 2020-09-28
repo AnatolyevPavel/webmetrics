@@ -122,5 +122,26 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+<extensions>
+    <extension>
+      <groupId>io.packagecloud.maven.wagon</groupId>
+      <artifactId>maven-packagecloud-wagon</artifactId>
+      <version>0.0.4</version>
+    </extension>
+  </extensions>
     </build>
+<DistributionManagement>
+<Repository>
+    <Id>packagecloud-travis</Id>
+    <Url>
+      packagecloud+https://packagecloud.io/PavelAnatolyev/testrepository
+    </Url>
+  </Repository>
+  <SnapshotRepository>
+    <Id>packagecloud-travis</Id>
+    <Url>
+      packagecloud+https://packagecloud.io/PavelAnatolyev/testrepository
+    </Url>
+  </SnapshotRepository>
+</DistributionManagement>
 </project>
