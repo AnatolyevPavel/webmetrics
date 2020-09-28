@@ -1,4 +1,4 @@
-# Sample Java web filter library ![Travis CI status](https://travis-ci.com/AnatolyevPavel/webmetrics.svg?branch=master)
+# Sample Java web filter library [![Travis CI status](https://travis-ci.com/AnatolyevPavel/webmetrics.svg?branch=master)](https://travis-ci.com/github/AnatolyevPavel/webmetrics)
 Simple metric-gathering library in Java for web application. Library is implemented as a servlet filter and collects the following information:
 * Request Time: time spent between when the application starts to process the request and the time when the application sends the response to the client.
 * Response Sizes: the size of the HTTP response body in bytes.
