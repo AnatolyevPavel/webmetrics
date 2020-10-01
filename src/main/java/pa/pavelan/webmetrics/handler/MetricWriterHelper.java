@@ -7,17 +7,12 @@ import java.io.PrintWriter;
 class MetricWriterHelper {
     final private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     final private PrintWriter metricsPrintWriter = new PrintWriter(byteStream);
-    final private ServletOutputStream servletOutputStream = new MetricsServletOutputStream(byteStream);
 
-    public PrintWriter getPrintWriter() {
+    PrintWriter getPrintWriter() {
         return metricsPrintWriter;
     }
 
-    public ServletOutputStream getOutputStream() {
-        return servletOutputStream;
-    }
-
-    public byte[] getByteArray() {
+    byte[] getByteArray() {
         return byteStream.toByteArray();
     }
 }

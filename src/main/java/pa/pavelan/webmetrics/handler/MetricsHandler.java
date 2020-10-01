@@ -1,41 +1,49 @@
 package pa.pavelan.webmetrics.handler;
 
+import lombok.extern.log4j.Log4j;
 import pa.pavelan.webmetrics.model.MetricsModel;
 import pa.pavelan.webmetrics.model.MetricsSummaryModel;
 
 import java.util.*;
 
-class MetricsHandler {
+@Log4j
+final class MetricsHandler {
+    private final static long DEFAULT_RETENTION_TIME = 60; // in seconds
+
     private static volatile MetricsHandler metricsHandler;
-    private final Map<UUID, MetricsModel> metrics;
-    private volatile long minProcessingTime;
-    private volatile double averageProcessingTime;
-    private volatile long maxProcessingTime;
-    private volatile long minResponseSize;
-    private volatile double averageResponseSize;
-    private volatile long maxResponseSize;
-    private volatile long numberOfRequests;
-    private volatile long totalProcessingTime;
-    private volatile long totalResponseSize;
+    private final Map<UUID, MetricsModel> metrics = new LinkedHashMap<>();
+    private volatile long minProcessingTime = Long.MAX_VALUE;
+    private volatile double averageProcessingTime = 0;
+    private volatile long maxProcessingTime = 0;
+    private volatile long minResponseSize = Long.MAX_VALUE;
+    private volatile double averageResponseSize = 0;
+    private volatile long maxResponseSize = 0;
+    private volatile long numberOfRequests = 0;
+    private volatile long totalProcessingTime = 0;
+    private volatile long totalResponseSize = 0;
+    final private long retentionTime;
+    private volatile long lastMapClearTime;
 
     private MetricsHandler() {
-        metrics = new LinkedHashMap<>();
-        minProcessingTime = Long.MAX_VALUE;
-        averageProcessingTime = 0;
-        maxProcessingTime = 0;
-        minResponseSize = Long.MAX_VALUE;
-        averageResponseSize = 0;
-        maxResponseSize = 0;
-        numberOfRequests = 0;
-        totalProcessingTime = 0;
-        totalResponseSize = 0;
+        String retentionTimeString = new Properties().getProperty("metric.retention.time");
+        long retentionTimeProperty = 0L;
+        try {
+            retentionTimeProperty = Long.parseLong(retentionTimeString);
+        } catch (NumberFormatException ex) {
+            log.debug(ex.getMessage());
+        }
+        retentionTime = (retentionTimeProperty == 0 ? DEFAULT_RETENTION_TIME : retentionTimeProperty) * 1000;
+        lastMapClearTime = System.currentTimeMillis();
     }
 
     synchronized void addMetric(MetricsModel metric) {
         if (metric == null || metric.getId() == null) {
             return;
         }
-        metrics.put(metric.getId(), metric);
+
+        MetricsModel metricWithTime = new MetricsModel(metric, System.currentTimeMillis());
+        metrics.put(metricWithTime.getId(), metricWithTime);
+
         if (metric.getResponseSize() == 0) {
             return;
         }
@@ -49,17 +57,23 @@ class MetricsHandler {
         maxProcessingTime = Math.max(metric.getProcessingTime(), maxProcessingTime);
         minResponseSize = Math.min(metric.getResponseSize(), minResponseSize);
         maxResponseSize = Math.max(metric.getResponseSize(), maxResponseSize);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        if (currentTimeMillis > lastMapClearTime + retentionTime) {
+            metrics.values().removeIf(value -> (value.getInsertTimeMillis() + retentionTime) < currentTimeMillis );
+            lastMapClearTime = currentTimeMillis;
+        }
     }
 
-    MetricsModel getMetricById(UUID id) {
+    synchronized MetricsModel getMetricById(UUID id) {
         return metrics.get(id);
     }
 
-    Collection<MetricsModel> getAllMetrics() {
-        return metrics.values();
+    synchronized Collection<MetricsModel> getAllMetrics() {
+        return new ArrayList<>(metrics.values());
     }
 
-    MetricsSummaryModel getMetricSummary() {
+    synchronized MetricsSummaryModel getMetricSummary() {
         return MetricsSummaryModel.builder()
                 .averageProcessingTime(averageProcessingTime)
                 .averageResponseSize(averageResponseSize)

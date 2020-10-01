@@ -5,7 +5,6 @@ import pa.pavelan.webmetrics.model.MetricsModel;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.*;
@@ -44,10 +43,8 @@ public class MetricsFilter implements Filter {
 
         long requestProcessingTime = System.currentTimeMillis() - startTime;
 
-        byte[] bytes = wrappedResponse.getByteArray();
-        response.getOutputStream().write(bytes);
+        long responseSize = wrappedResponse.copyBytesToOriginal();
 
-        long responseSize = bytes.length;
         log.debug(String.format("%s %dms %db", id.toString(), requestProcessingTime, responseSize));
 
         MetricsModel metric = MetricsModel.builder()
